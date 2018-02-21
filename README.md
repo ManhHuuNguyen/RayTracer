@@ -1,3 +1,3 @@
 # RayTracer
 
-A simple ray tracer following CS 5600 University of Utah
+A simple ray tracer as homework of CS 5600 University of Utah
