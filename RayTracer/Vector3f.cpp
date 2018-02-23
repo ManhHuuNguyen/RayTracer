@@ -8,7 +8,7 @@ Vector3f::Vector3f() {
 Vector3f::Vector3f(float X, float Y) {
 	x = X;
 	y = Y;
-	z = 1.0f; 
+	z = 1.0f;
 }
 
 bool Vector3f::operator == (const Vector3f & V) {
@@ -61,4 +61,3 @@ Vector3f operator *(float k, const Vector3f & V) {
 std::ostream & operator << (std::ostream &os, Vector3f &V) {
 	return os << "Vector3f<" << V.x << ", " << V.y << ", " << V.z << ">";
 }
-

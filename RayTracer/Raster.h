@@ -1,9 +1,9 @@
 #pragma once
 
-#include "PixelColorf.h"
+#include "Colorf.h"
 #include <iostream>
 #include <fstream>
-#include "Helper.h"
+#include "TriangleArray.h"
 
 class Raster {
 
@@ -20,14 +20,10 @@ class Raster {
 		
 		void writeToPPMFile(const char * path);
 
-		void drawTriangle(Triangle3D & t, PixelColorf & colorA, PixelColorf & colorB, PixelColorf & colorC);
-		
-		void drawTriangleArray(Triangle3DArray & t);
-
-		void draw(Scene & scene);
-
 		void clear();
 
 		~Raster();
 };
+
+void getBarycentricCoordinate(Vector4f & v1, Vector4f & v2, Vector4f & v3, int X, int Y, float * l1, float * l2, float * l3);
 

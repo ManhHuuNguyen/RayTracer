@@ -1,4 +1,5 @@
 #include "Vector4f.h"
+#include <iostream>
 
 Vector4f::Vector4f() {
 
@@ -27,16 +28,10 @@ bool Vector4f::operator != (const Vector4f & V) {
 }
 
 Vector4f Vector4f::operator + (const Vector4f & V) {
-	if (abs(w - V.w) > CLOSE_VALUE) {
-		throw;
-	}
 	return Vector4f(x + V.x, y + V.y, z + V.z, w);
 }
 
 Vector4f Vector4f::operator - (const Vector4f & V) {
-	if (abs(w - V.w) > CLOSE_VALUE) {
-		throw;
-	}
 	return Vector4f(x - V.x, y - V.y, z - V.z, w);
 }
 
@@ -49,9 +44,6 @@ Vector4f Vector4f::operator / (float a) {
 }
 
 float Vector4f::operator * (const Vector4f & V) {
-	if (abs(w - V.w) > CLOSE_VALUE) {
-		throw;
-	}
 	return x * V.x + y * V.y + z * V.z;
 }
 
@@ -87,8 +79,5 @@ std::ostream & operator << (std::ostream &os, Vector4f &V) {
 }
 
 Vector4f crossProduct(Vector4f & v1, Vector4f & v2) {
-	if (abs(v1.w - v2.w) > CLOSE_VALUE) {
-		throw;
-	}
 	return Vector4f(v1.y*v2.z - v1.z*v2.y, v1.z*v2.x - v1.x*v2.z, v1.x*v2.y - v1.y*v2.x, v1.w);
 }

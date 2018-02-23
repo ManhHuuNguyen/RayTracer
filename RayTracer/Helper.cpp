@@ -21,39 +21,6 @@ std::vector<std::string> splitString(std::string str) {
 	return vect;
 }
 
-
-
-
-std::vector<Triangle3D> readRawFile(const char * path) {
-	std::vector<Triangle3D> triangleArr;
-	std::ifstream f(path);
-	if (!f) {
-		std::cout << "Cannot open raw file" << std::endl;
-		throw;
-	}
-	std::string str;
-	int count = 0;
-	float coordinates[9];
-	std::vector<std::string> line;
-	while (getline(f, str)) {
-		line = splitString(str);
-		for (int i = 0; i < line.size(); i++) {
-			coordinates[count] = strtof(line[i].c_str(), 0);
-			count++;
-			
-			if (count == 9) {
-				Triangle3D triangle(coordinates[0], coordinates[1], coordinates[2],
-								    coordinates[3], coordinates[4], coordinates[5],
-								    coordinates[6], coordinates[7], coordinates[8]);
-				triangleArr.push_back(triangle);
-				count = 0;
-			}
-		}
-	}
-	f.close();
-	return triangleArr;
-}
-
 Scene readSceneFile(const char * path) {
 	std::vector<std::string> geometry;
 	std::ifstream f(path);
@@ -72,38 +39,52 @@ Scene readSceneFile(const char * path) {
 	vect = splitString(str); 
 	scene.rasterWidth = atoi(vect[0].c_str());
 	scene.rasterHeight = atoi(vect[1].c_str());
-	scene.viewportMatrix = viewportMatrix(scene.rasterWidth, scene.rasterHeight);
 
 	getline(f, str); // get eye coordinate
 	vect = splitString(str);
-	Vector4f eye(strtof(vect[0].c_str(), 0), strtof(vect[1].c_str(), 0), strtof(vect[2].c_str(), 0));
+	scene.eyeX = strtof(vect[0].c_str(), 0);
+	scene.eyeY = strtof(vect[1].c_str(), 0);
+	scene.eyeZ = strtof(vect[2].c_str(), 0);
+	
 	getline(f, str); // get spot coordinate
 	vect = splitString(str);
-	Vector4f spot(strtof(vect[0].c_str(), 0), strtof(vect[1].c_str(), 0), strtof(vect[2].c_str(), 0));
+	scene.spotX = strtof(vect[0].c_str(), 0);
+	scene.spotY = strtof(vect[1].c_str(), 0);
+	scene.spotZ = strtof(vect[2].c_str(), 0);
+
 	getline(f, str); // get up coordinate
 	vect = splitString(str);
-	Vector4f up(strtof(vect[0].c_str(), 0), strtof(vect[1].c_str(), 0), strtof(vect[2].c_str(), 0));
-	scene.cameraMatrix = cameraMatrix(eye, spot, up);
+	scene.upX = strtof(vect[0].c_str(), 0);
+	scene.upY = strtof(vect[1].c_str(), 0);
+	scene.upZ = strtof(vect[2].c_str(), 0);
 
-	getline(f, str);
+	getline(f, str); // get frustum info
 	vect = splitString(str);
-	scene.projectionMatrix = perspectiveProjectionMatrix(strtof(vect[0].c_str(), 0), 
-		strtof(vect[1].c_str(), 0), strtof(vect[2].c_str(), 0), strtof(vect[3].c_str(), 0));
+	scene.fov = strtof(vect[0].c_str(), 0);
+	scene.aspect = strtof(vect[1].c_str(), 0);
+	scene.near = strtof(vect[2].c_str(), 0);
+	scene.far = strtof(vect[3].c_str(), 0);
 
+	getline(f, str); // get ambient light
+	vect = splitString(str);
+	scene.ambientLight = Colorf(strtof(vect[0].c_str(), 0), strtof(vect[1].c_str(), 0), strtof(vect[2].c_str(), 0), 0.0f);
 
 	while (getline(f, str)) {
 		vect = splitString(str);
 		if (vect.size() > 0) {
 			if (vect[0] == "g") {
-				Triangle3DArray a = Triangle3DArray();
+				TriangleArray a = TriangleArray();
 				geometry.push_back(vect[1]);
 				scene.addObject(a);
 			}
 			else if (vect[0] == "c") {
-				scene.getLastObj().colors[0] = PixelColorf(strtof(vect[1].c_str(), 0), strtof(vect[2].c_str(), 0), strtof(vect[3].c_str(), 0), 0);
-				scene.getLastObj().colors[1] = PixelColorf(strtof(vect[4].c_str(), 0), strtof(vect[5].c_str(), 0), strtof(vect[6].c_str(), 0), 0);
-				scene.getLastObj().colors[2] = PixelColorf(strtof(vect[7].c_str(), 0), strtof(vect[8].c_str(), 0), strtof(vect[9].c_str(), 0), 0);
+				scene.getLastObj().KaKd = Colorf(strtof(vect[2].c_str(), 0), strtof(vect[3].c_str(), 0), strtof(vect[4].c_str(), 0), strtof(vect[1].c_str(), 0));
 			}
+
+			else if (vect[0] == "p") {
+				scene.getLastObj().Ks = Colorf(strtof(vect[1].c_str(), 0), strtof(vect[2].c_str(), 0), strtof(vect[3].c_str(), 0), strtof(vect[4].c_str(), 0));
+			}
+
 			else if (vect[0] == "t") {
 				Matrix4x4 m = translationMatrix(strtof(vect[1].c_str(), 0), strtof(vect[2].c_str(), 0), strtof(vect[3].c_str(), 0));
 				scene.getLastObj().transformations.push_back(m);
@@ -117,21 +98,23 @@ Scene readSceneFile(const char * path) {
 				Matrix4x4 m = scaleMatrix(strtof(vect[1].c_str(), 0), strtof(vect[2].c_str(), 0), strtof(vect[3].c_str(), 0));
 				scene.getLastObj().transformations.push_back(m);
 			}
+
+			else if (vect[0] == "l") {
+				Light light(strtof(vect[1].c_str(), 0), strtof(vect[2].c_str(), 0), strtof(vect[3].c_str(), 0), 
+					strtof(vect[4].c_str(), 0), strtof(vect[5].c_str(), 0), strtof(vect[6].c_str(), 0));
+				scene.pointLight = light;
+			}
 		}
 	}
 	f.close();
-	// add vertex info to triangle array
+	 //add vertex info to triangle array
 	for (int i = 0; i < scene.size(); i++) {
-		//std::vector<Triangle3D> ta = readRawFile(geometry[i].c_str());
-		std::vector<Triangle3D> ta = readObjFile(geometry[i].c_str());
-		scene.objects[i].vectTriangle = ta;
+		readObjFile(geometry[i].c_str(), scene.objects[i]);
 	}
 	return scene;
 }
 
-std::vector<Triangle3D> readObjFile(const char * path) {
-	std::vector<Triangle3D> triangleArr; 
-	std::vector<Vector4f> vertices;
+void readObjFile(const char * path, TriangleArray & arr) {
 	std::ifstream f(path);
 	if (!f) {
 		std::cout << "Cannot open scene file" << std::endl;
@@ -140,30 +123,47 @@ std::vector<Triangle3D> readObjFile(const char * path) {
 	
 	std::string str;
 	while (getline(f, str)) {
-		std::vector<std::string> vect = splitString(str);
-		if (vect[0] == "v") {
-			Vector4f v(strtof(vect[1].c_str(), 0), strtof(vect[2].c_str(), 0), strtof(vect[3].c_str(), 0));
-			vertices.push_back(v);
-		}
-		else if (vect[0] == "f") {
-			std::string vertexA = vect[1];
-			std::string vertexB = vect[2];
-			std::string vertexC = vect[3];
-			int vertexAIndex = atoi(splitStringWithDelimiter(vertexA, '/')[0].c_str());
-			int vertexBIndex = atoi(splitStringWithDelimiter(vertexB, '/')[0].c_str());
-			int vertexCIndex = atoi(splitStringWithDelimiter(vertexC, '/')[0].c_str());
-			Triangle3D triangle(vertices[vertexAIndex-1], vertices[vertexBIndex-1], vertices[vertexCIndex-1]);
-			triangleArr.push_back(triangle);
+		std::vector<std::string> vect = splitStringWithDelimiter(str, '/');
+		if (vect.size() > 0) {
+			if (vect[0] == "v") {
+				Vector4f v(strtof(vect[1].c_str(), 0), strtof(vect[2].c_str(), 0), strtof(vect[3].c_str(), 0));
+				arr.vertices.push_back(v);
+			}
+			else if (vect[0] == "vn") {
+				Vector4f vn(strtof(vect[1].c_str(), 0), strtof(vect[2].c_str(), 0), strtof(vect[3].c_str(), 0), 0);
+				arr.vertexNormal.push_back(vn);
+			}
+			else if (vect[0] == "vt") {
+				Vector4f vt(strtof(vect[1].c_str(), 0), strtof(vect[2].c_str(), 0), strtof(vect[3].c_str(), 0));
+				arr.vertexTexture.push_back(vt);
+			}
+			else if (vect[0] == "f") {
+				std::vector<int> face;
+				if (vect.size() == 10) { // has texture data
+										 // index of vertices
+					face.push_back(atoi(vect[1].c_str()) - 1); face.push_back(atoi(vect[4].c_str()) - 1); face.push_back(atoi(vect[7].c_str()) - 1);
+					// index of normals
+					face.push_back(atoi(vect[3].c_str()) - 1); face.push_back(atoi(vect[6].c_str()) - 1); face.push_back(atoi(vect[9].c_str()) - 1);
+					// index of texture
+					face.push_back(atoi(vect[2].c_str()) - 1); face.push_back(atoi(vect[5].c_str()) - 1); face.push_back(atoi(vect[8].c_str()) - 1);
+				}
+				else { // no texture data
+					face.push_back(atoi(vect[1].c_str()) - 1); face.push_back(atoi(vect[3].c_str()) - 1); face.push_back(atoi(vect[5].c_str()) - 1);
+					// index of normals
+					face.push_back(atoi(vect[2].c_str()) - 1); face.push_back(atoi(vect[4].c_str()) - 1); face.push_back(atoi(vect[6].c_str()) - 1);
+				}
+
+				arr.faces.push_back(face);
+			}
 		}
 	}
-	return triangleArr;
 }
 
 std::vector<std::string> splitStringWithDelimiter(std::string str, char c) {
 	std::vector<std::string> vect;
 	std::string substring;
 	for (char & character : str) {
-		if (character == c) {
+		if (character == c || character == ' ') {
 			if (substring != "") {
 				vect.push_back(substring);
 				substring.clear();

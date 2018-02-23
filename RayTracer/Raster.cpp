@@ -18,11 +18,8 @@ void Raster::clear() {
 			pixels[i * width + j] = blackInt;
 		}
 	}
-}
-
-void Raster::draw(Scene & scene) {
-	for (int i = 0; i < scene.size(); i++){
-		drawTriangleArray(scene.objects[i]);
+	for (int i = 0; i < width*height; i++) {
+		zBuffer[i] = -INFINITY;
 	}
 }
 
@@ -100,78 +97,11 @@ void Raster::writeToPPMFile(const char * path) {
 	fclose(f);
 }
 
-void Raster::drawTriangle(Triangle3D & t, PixelColorf & colorA, PixelColorf & colorB, PixelColorf & colorC) {
-	int minX = t.vertexA.x;
-	int maxX = t.vertexC.x;
-	int minY = t.vertexA.y;
-	int maxY = t.vertexC.y;
-	if (t.vertexA.x > maxX) {
-		maxX = t.vertexA.x;
-	}
-	if (t.vertexB.x > maxX) {
-		maxX = t.vertexB.x;
-	}
-	if (t.vertexB.x < minX) {
-		minX = t.vertexB.x;
-	}
-	if (t.vertexC.x < minX) {
-		minX = t.vertexC.x;
-	}
-	if (t.vertexA.y > maxY) {
-		maxY = t.vertexA.y;
-	}
-	if (t.vertexB.y > maxY) {
-		maxY = t.vertexB.y;
-	}
-	if (t.vertexB.y < minY) {
-		minY = t.vertexB.y;
-	}
-	if (t.vertexC.y < minY) {
-		minY = t.vertexC.y;
-	}
-
-	if (minX < 0) {
-		minX = 0;
-	}
-	if (minY < 0) {
-		minY = 0;
-	}
-	if (maxX >= width) {
-		maxX = width-1;
-	}
-	if (maxY >= height) {
-		maxY = height-1;
-	}
-	float zA = t.vertexA.z;
-	float zB = t.vertexB.z;
-	float zC = t.vertexC.z;
-	for (int Y = minY; Y <= maxY; Y++) {
-		for (int X = minX; X <= maxX; X++) {
-			float lambda1;
-			float lambda2;
-			float lambda3;
-			t.getBarycentricCoordinate(X, Y, &lambda1, &lambda2, &lambda3);
-			if ((0.0f <= lambda1 && 0.0f <= lambda2 && 0.0f <= lambda3)) {
-				
-				float zValue = lambda1 * zA + lambda2 * zB + lambda3 * zC;
-				if (abs(zValue) < abs(zBuffer[Y * width + X])) {
-					// If a point is closer to the eye, which is at (0, 0, 0) then draw. Is this a problem? 
-					PixelColorf interpolatedColor = lambda1 * colorA + lambda2 * colorB + lambda3 * colorC;
-					pixels[Y * width + X] = floatColorToIntColor(interpolatedColor);
-					zBuffer[Y * width + X] = zValue;
-				}
-				
-			}
-		}
-	}
-}
-
-void Raster::drawTriangleArray(Triangle3DArray & TA) {
-	PixelColorf colorA = TA.colors[0];
-	PixelColorf colorB = TA.colors[1];
-	PixelColorf colorC = TA.colors[2];
-	for (int i = 0; i < TA.size(); i++) {
-		drawTriangle(TA[i], colorA, colorB, colorC);
-	}
-
+void getBarycentricCoordinate(Vector4f & v1, Vector4f & v2, Vector4f & v3, int X, int Y, float * l1, float * l2, float * l3) {
+	float denonimator = (float)((v2.y - v3.y) * (v1.x - v3.x) + (v3.x - v2.x) * (v1.y - v3.y));
+	float lambda1 = ((v2.y - v3.y)*(X - v3.x) + (v3.x - v2.x)*(Y - v3.y)) / denonimator;
+	float lambda2 = ((v3.y - v1.y)*(X - v3.x) + (v1.x - v3.x)*(Y - v3.y)) / denonimator;
+	*l1 = lambda1;
+	*l2 = lambda2;
+	*l3 = 1 - lambda1 - lambda2;
 }

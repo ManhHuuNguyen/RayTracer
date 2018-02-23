@@ -164,10 +164,6 @@ Matrix4x4 cameraMatrix(Vector4f & eyeVect, Vector4f & spotVect, Vector4f & upVec
 	right.normalize();
 	
 	Vector4f up = crossProduct(right, look);
-	
-	look.normalize();
-	right.normalize();
-	up.normalize();
 
 	float rx = right.x, ry = right.y, rz = right.z;
 	float ux = up.x, uy = up.y, uz = up.z;

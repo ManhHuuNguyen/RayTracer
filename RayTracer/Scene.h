@@ -1,26 +1,29 @@
 #pragma once
 #include <vector>
-#include "Triangle3DArray.h"
+#include "TriangleArray.h"
 #include <string>
+#include "Raster.h"
+#include "Light.h"
 
 class Scene {
 
 	public:
 		int rasterWidth, rasterHeight;
-		Matrix4x4 cameraMatrix;
-		Matrix4x4 projectionMatrix;
-		Matrix4x4 viewportMatrix;
-		std::vector<Triangle3DArray> objects;
+		float eyeX, eyeY, eyeZ;
+		float spotX, spotY, spotZ;
+		float upX, upY, upZ;
+		float fov, aspect, near, far;
+		Colorf ambientLight;
+		Light pointLight; 
+		std::vector<TriangleArray> objects;
 		
 		Scene();
 
-		void addObject(Triangle3DArray & ta);
+		void addObject(TriangleArray & ta);
 		
-		Triangle3DArray & getLastObj();
+		TriangleArray & getLastObj();
 		
 		int size(); // size of instance member object
 
-		void applyGraphicPipeLine();
-
-		void applyGraphicPipeLine2();
+		void draw(Raster & raster);
 };
