@@ -1,3 +1,3 @@
-# RayTracer
+# Software rasterizer
 
-A simple ray tracer as homework of CS 5600 University of Utah
+A simple software rasterizer as homework of CS 5600 University of Utah
