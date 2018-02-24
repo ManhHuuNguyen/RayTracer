@@ -1,6 +1,10 @@
 #include "Raster.h"
 #include "CONSTANTS.h"
 
+Raster::Raster() {
+
+}
+
 Raster::Raster(int w, int h) {
 	width = w;
 	height = h;
@@ -21,11 +25,6 @@ void Raster::clear() {
 	for (int i = 0; i < width*height; i++) {
 		zBuffer[i] = -INFINITY;
 	}
-}
-
-Raster::~Raster() {
-	delete[] pixels;
-	delete[] zBuffer;
 }
 
 void Raster::writeToBMPFile(const char * path) {
@@ -67,7 +66,6 @@ void Raster::writeToBMPFile(const char * path) {
 	for (int y = 0; y < height; y++) {
 		for (int x = 0; x < width; x++) {
 			PixelColor pixelValue = pixels[y*width+x];
-			// this order may very well be wrong!!!! Remember to check this later future Manh!!!
 			fwrite(&pixelValue.B, 1, 1, f);
 			fwrite(&pixelValue.G, 1, 1, f);
 			fwrite(&pixelValue.R, 1, 1, f);
@@ -104,4 +102,14 @@ void getBarycentricCoordinate(Vector4f & v1, Vector4f & v2, Vector4f & v3, int X
 	*l1 = lambda1;
 	*l2 = lambda2;
 	*l3 = 1 - lambda1 - lambda2;
+}
+
+void getBarycentricCoordinate2D(Vector3f & v1, Vector3f & v2, Vector3f & v3, int X, int Y, float * l1, float * l2, float * l3) {
+	float denonimator = (float)((v2.y - v3.y) * (v1.x - v3.x) + (v3.x - v2.x) * (v1.y - v3.y));
+	float lambda1 = ((v2.y - v3.y)*(X - v3.x) + (v3.x - v2.x)*(Y - v3.y)) / denonimator;
+	float lambda2 = ((v3.y - v1.y)*(X - v3.x) + (v1.x - v3.x)*(Y - v3.y)) / denonimator;
+	*l1 = lambda1;
+	*l2 = lambda2;
+	*l3 = 1 - lambda1 - lambda2;
+
 }

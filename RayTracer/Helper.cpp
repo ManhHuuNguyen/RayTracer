@@ -85,6 +85,10 @@ Scene readSceneFile(const char * path) {
 				scene.getLastObj().Ks = Colorf(strtof(vect[1].c_str(), 0), strtof(vect[2].c_str(), 0), strtof(vect[3].c_str(), 0), strtof(vect[4].c_str(), 0));
 			}
 
+			else if (vect[0] == "m") {
+				scene.getLastObj().texture = vect[1];
+			}
+
 			else if (vect[0] == "t") {
 				Matrix4x4 m = translationMatrix(strtof(vect[1].c_str(), 0), strtof(vect[2].c_str(), 0), strtof(vect[3].c_str(), 0));
 				scene.getLastObj().transformations.push_back(m);
@@ -134,7 +138,7 @@ void readObjFile(const char * path, TriangleArray & arr) {
 				arr.vertexNormal.push_back(vn);
 			}
 			else if (vect[0] == "vt") {
-				Vector4f vt(strtof(vect[1].c_str(), 0), strtof(vect[2].c_str(), 0), strtof(vect[3].c_str(), 0));
+				Vector3f vt(strtof(vect[1].c_str(), 0), strtof(vect[2].c_str(), 0), strtof(vect[3].c_str(), 0));
 				arr.vertexTexture.push_back(vt);
 			}
 			else if (vect[0] == "f") {

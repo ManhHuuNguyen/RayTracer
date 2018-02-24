@@ -51,6 +51,7 @@
     <None Include="scene.u4d" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="humanskin_texture.bmp" />
     <Image Include="image.bmp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

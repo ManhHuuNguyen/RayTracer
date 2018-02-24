@@ -14,6 +14,8 @@ public:
 
 	Vector3f(float X, float Y);
 
+	Vector3f(float X, float Y, float Z);
+
 	bool operator == (const Vector3f & V);
 
 	bool operator != (const Vector3f & V);
@@ -29,8 +31,6 @@ public:
 	float operator * (const Vector3f & V);
 
 	Vector3f operator - ();
-
-	void zero();
 
 	void normalize();
 

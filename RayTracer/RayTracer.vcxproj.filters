@@ -114,5 +114,8 @@
     <Image Include="image.bmp">
       <Filter>Resource Files</Filter>
     </Image>
+    <Image Include="humanskin_texture.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
 </Project>

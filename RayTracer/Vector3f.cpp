@@ -11,6 +11,12 @@ Vector3f::Vector3f(float X, float Y) {
 	z = 1.0f;
 }
 
+Vector3f::Vector3f(float X, float Y, float Z) {
+	x = X;
+	y = Y;
+	z = Z;
+}
+
 bool Vector3f::operator == (const Vector3f & V) {
 	return abs(x - V.x) <= CLOSE_VALUE && abs(y - V.y) <= CLOSE_VALUE;
 }
@@ -41,11 +47,6 @@ float Vector3f::operator * (const Vector3f & V) {
 
 Vector3f Vector3f::operator - () {
 	return Vector3f(-x, -y);
-}
-
-void Vector3f::zero() {
-	x = y = 0.0f;
-	z = 1.0f;
 }
 
 void Vector3f::normalize() {

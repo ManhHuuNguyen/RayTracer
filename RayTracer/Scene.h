@@ -27,3 +27,5 @@ class Scene {
 
 		void draw(Raster & raster);
 };
+
+Raster readBitMapFile(const char * path);

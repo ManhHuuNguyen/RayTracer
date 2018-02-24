@@ -3,6 +3,7 @@
 #include <vector>
 #include "Colorf.h"
 #include "Matrix4x4.h"
+#include "Vector3f.h"
 
 class TriangleArray {
 
@@ -12,8 +13,9 @@ class TriangleArray {
 		Colorf Ks; // object's shininess, specular coefficent
 		std::vector<Vector4f> vertices;
 		std::vector<Vector4f> vertexNormal;
-		std::vector<Vector4f> vertexTexture;
+		std::vector<Vector3f> vertexTexture;
 		std::vector<Matrix4x4> transformations;
+		std::string texture;
 		int culledTriangle = 0;
 
 		TriangleArray();
